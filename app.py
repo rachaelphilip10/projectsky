@@ -97,9 +97,6 @@ from ui.ai_insights import render_ai_insights_idle, render_ai_insights_results
 st.markdown("""
 <div class="hc-navbar">
     <div class="hc-logo">🌾&nbsp;<span>HazeCrop</span></div>
-    <div style="font-size:12px;color:rgba(255,255,255,0.3);margin-left:6px;display:none;">
-        NASA Satellite Intelligence for Crop Planning
-    </div>
     <div style="flex:1"></div>
     <a class="hc-nav-pill" href="#overview">Overview</a>
     <a class="hc-nav-pill" href="#map">Map</a>
@@ -134,12 +131,12 @@ st.markdown("""
 
 def _init_session_state() -> None:
     defaults = {
-        "analysis_completed":   False,
-        "analysis_results":     None,
-        "last_state":           None,
-        "last_year":            None,
+        "analysis_completed":    False,
+        "analysis_results":      None,
+        "last_state":            None,
+        "last_year":             None,
         "last_historical_years": None,
-        "settings_changed":     False,
+        "settings_changed":      False,
     }
     for key, default in defaults.items():
         if key not in st.session_state:
@@ -193,7 +190,7 @@ st.markdown('</div>', unsafe_allow_html=True)
 # ── Detect settings change after a completed analysis ─────────────────────────
 if st.session_state.analysis_completed:
     changed = (
-        state      != st.session_state.last_state
+        state          != st.session_state.last_state
         or target_year != st.session_state.last_year
     )
     st.session_state.settings_changed = changed
@@ -210,18 +207,16 @@ else:
 # ══════════════════════════════════════════════════════════════════════════════
 
 if run_analysis:
-    # Import agents
-    from agents.data_analyst     import run_data_analyst
-    from agents.pattern_analyst  import run_pattern_analyst
-    from agents.outlook_agent    import run_outlook_agent
+    from agents.data_analyst       import run_data_analyst
+    from agents.pattern_analyst    import run_pattern_analyst
+    from agents.outlook_agent      import run_outlook_agent
     from agents.preparedness_agent import run_preparedness_agent
 
-    # Agent status tracker
     agent_statuses = {
-        "🔬 Data Analyst":        "off",
-        "📊 Pattern Analyst":     "off",
-        "🌫 Outlook Agent":       "off",
-        "🌱 Preparedness Agent":  "off",
+        "🔬 Data Analyst":       "off",
+        "📊 Pattern Analyst":    "off",
+        "🌫 Outlook Agent":      "off",
+        "🌱 Preparedness Agent": "off",
     }
     status_placeholder = st.empty()
     status_placeholder.markdown(
@@ -288,9 +283,9 @@ if run_analysis:
     st.session_state.last_year             = target_year
     st.session_state.last_historical_years = historical_years
     st.session_state.analysis_results      = {
-        "data_result":        data_result,
-        "pattern_result":     pattern_result,
-        "outlook_result":     outlook_result,
+        "data_result":         data_result,
+        "pattern_result":      pattern_result,
+        "outlook_result":      outlook_result,
         "preparedness_result": preparedness_result,
     }
 
@@ -302,16 +297,14 @@ if run_analysis:
 if st.session_state.analysis_completed and st.session_state.analysis_results:
     results = st.session_state.analysis_results
 
-    # Show stale banner if settings changed after analysis
     if st.session_state.settings_changed:
         render_settings_changed_banner()
 
-    data_result        = results["data_result"]
-    pattern_result     = results["pattern_result"]
-    outlook_result     = results["outlook_result"]
+    data_result         = results["data_result"]
+    pattern_result      = results["pattern_result"]
+    outlook_result      = results["outlook_result"]
     preparedness_result = results["preparedness_result"]
 
-    # ── Tab navigation ────────────────────────────────────────────────────────
     tab_overview, tab_map, tab_patterns, tab_insights = st.tabs(
         ["📡 Overview", "🗺 Map", "📈 Patterns", "🧠 AI Insights"]
     )
@@ -344,7 +337,6 @@ if st.session_state.analysis_completed and st.session_state.analysis_results:
         )
 
 else:
-    # ── Pre-analysis idle state ────────────────────────────────────────────────
     tab_overview, tab_map, tab_patterns, tab_insights = st.tabs(
         ["📡 Overview", "🗺 Map", "📈 Patterns", "🧠 AI Insights"]
     )
