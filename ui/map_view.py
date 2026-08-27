@@ -39,8 +39,13 @@ _AOD_VIS = {
 def render_map_idle(state: str) -> None:
     st.markdown('<div id="map"></div>', unsafe_allow_html=True)
     st.markdown('<div class="hc-section-label">🗺 &nbsp;Satellite Map</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div style="background:#FFFFFF;border:1px solid #E4E1D6;border-radius:16px;overflow:hidden;">',
+        unsafe_allow_html=True,
+    )
     lat, lon = get_state_centroid(state)
     _render_base_map(lat, lon, state, zoom=8)
+    st.markdown('</div>', unsafe_allow_html=True)
 
 
 def render_map_results(state: str,
@@ -51,6 +56,10 @@ def render_map_results(state: str,
     """Render the map with AOD or Historical Pattern layer."""
     st.markdown('<div id="map"></div>', unsafe_allow_html=True)
     st.markdown('<div class="hc-section-label">🗺 &nbsp;Satellite Map</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div style="background:#FFFFFF;border:1px solid #E4E1D6;border-radius:16px;overflow:hidden;padding:16px 16px 0;">',
+        unsafe_allow_html=True,
+    )
 
     mode = st.radio(
         "Map layer",
@@ -65,6 +74,8 @@ def render_map_results(state: str,
         _render_aod_layer(state, target_year, historical_years, lat, lon)
     else:
         _render_historical_layer(state, data_result, lat, lon, outlook_result)
+
+    st.markdown('</div>', unsafe_allow_html=True)
 
 
 # ─── Internal renderers ───────────────────────────────────────────────────────
@@ -215,26 +226,23 @@ def _render_historical_layer(state: str, data_result: dict,
 
 
 def _map_unavailable_card() -> None:
-    st.markdown("""
-    <div class="hc-card" style="text-align:center;padding:40px 28px;">
-        <div style="font-size:32px;margin-bottom:14px;">🗺️</div>
-        <div class="hc-card-title">Map unavailable</div>
-        <div class="hc-card-body">
-            geemap is not installed. Install it with
-            <code>pip install geemap</code> to enable the satellite map view.
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        '<div class="hc-card" style="text-align:center;padding:48px 28px;">'
+        '<div style="font-size:36px;margin-bottom:16px;">🗺️</div>'
+        '<div style="font-family:Fraunces,Georgia,serif;font-size:18px;font-weight:600;color:#1E2A1C;margin-bottom:8px;">Map unavailable</div>'
+        '<div style="font-size:14px;color:#5C6858;">geemap is not installed. Install it with '
+        '<code style="background:#F6F4EE;padding:2px 6px;border-radius:4px;border:1px solid #E4E1D6;color:#1E2A1C;">pip install geemap</code> to enable the satellite map view.</div>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
 
 
 def _map_error_card(error: str) -> None:
-    st.markdown(f"""
-    <div class="hc-card" style="border-color:rgba(248,113,113,0.2);text-align:center;padding:32px 28px;">
-        <div style="font-size:28px;margin-bottom:12px;">⚠️</div>
-        <div class="hc-card-title">Map rendering error</div>
-        <div class="hc-card-body">
-            The satellite map could not be displayed for this configuration.
-            The analysis results above are still valid.
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        '<div class="hc-card" style="border-left:4px solid #9B3330;text-align:center;padding:36px 28px;">'
+        '<div style="font-size:28px;margin-bottom:12px;">⚠️</div>'
+        '<div style="font-family:Fraunces,Georgia,serif;font-size:16px;font-weight:600;color:#1E2A1C;margin-bottom:6px;">Map rendering error</div>'
+        '<div style="font-size:13px;color:#5C6858;">The satellite map could not be displayed for this configuration. The analysis results above are still valid.</div>'
+        '</div>',
+        unsafe_allow_html=True,
+    )

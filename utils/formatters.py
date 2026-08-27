@@ -53,9 +53,9 @@ def agent_status_html(statuses: dict[str, str]) -> str:
 
     statuses: {"Agent Name": "ok" | "warn" | "off"}
     """
-    icons = {"ok": "✓", "warn": "⚠", "off": "○"}
+    icons = {"ok": "✓", "warn": "⚠", "off": "·"}
     pills = "".join(
-        f'<span class="hc-agent-pill agent-{v}">{icons.get(v, "○")} {k}</span>'
+        f'<span class="hc-agent-pill agent-{v}">{icons.get(v, "·")} {k}</span>'
         for k, v in statuses.items()
     )
     return f'<div class="hc-agent-row">{pills}</div>'

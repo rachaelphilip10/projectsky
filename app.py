@@ -54,24 +54,19 @@ from services.earth_engine import initialize_earth_engine
 ee_ready = initialize_earth_engine()
 
 if not ee_ready:
-    st.markdown("""
-    <div class="hc-card" style="border-color:rgba(248,113,113,0.3);margin:60px auto;
-         max-width:560px;text-align:center;">
-        <div style="font-size:40px;margin-bottom:16px;">🛰️</div>
-        <div class="hc-card-title" style="font-size:20px;margin-bottom:10px;">
-            Satellite connection unavailable
-        </div>
-        <div class="hc-card-body">
-            HazeCrop could not connect to Google Earth Engine.<br><br>
-            Please check authentication and project configuration.<br><br>
-            Run <code style="background:rgba(255,255,255,0.08);padding:2px 6px;
-            border-radius:4px;">earthengine authenticate</code> in your terminal,
-            then restart the app with your project ID set as the
-            <code style="background:rgba(255,255,255,0.08);padding:2px 6px;
-            border-radius:4px;">EARTHENGINE_PROJECT</code> environment variable.
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        '<div class="hc-ee-error">'
+        '<div style="font-size:40px;margin-bottom:16px;">🛰️</div>'
+        '<div style="font-family:Fraunces,Georgia,serif;font-size:20px;font-weight:600;color:#1E2A1C;margin-bottom:10px;">Satellite connection unavailable</div>'
+        '<div style="font-size:14px;color:#5C6858;line-height:1.7;margin-bottom:16px;">'
+        'HazeCrop could not connect to Google Earth Engine.<br><br>'
+        'Please check authentication and project configuration.<br><br>'
+        'Run <code style="background:#F6F4EE;padding:2px 6px;border-radius:4px;border:1px solid #E4E1D6;color:#1E2A1C;">earthengine authenticate</code> in your terminal, '
+        'then restart the app with your project ID set as the '
+        '<code style="background:#F6F4EE;padding:2px 6px;border-radius:4px;border:1px solid #E4E1D6;color:#1E2A1C;">EARTHENGINE_PROJECT</code> environment variable.'
+        '</div></div>',
+        unsafe_allow_html=True,
+    )
     st.stop()
 
 # ── Remaining imports (after EE is confirmed ready) ───────────────────────────
@@ -94,35 +89,32 @@ from ui.ai_insights import render_ai_insights_idle, render_ai_insights_results
 # NAVBAR
 # ══════════════════════════════════════════════════════════════════════════════
 
-st.markdown("""
-<div class="hc-navbar">
-    <div class="hc-logo">🌾&nbsp;<span>HazeCrop</span></div>
-    <div style="flex:1"></div>
-    <a class="hc-nav-pill" href="#overview">Overview</a>
-    <a class="hc-nav-pill" href="#map">Map</a>
-    <a class="hc-nav-pill" href="#patterns">Patterns</a>
-    <a class="hc-nav-pill" href="#ai-insights">AI Insights</a>
-</div>
-""", unsafe_allow_html=True)
+st.markdown(
+    '<div class="hc-navbar">'
+    '<div class="hc-logo">🌾&nbsp;<span>HazeCrop</span></div>'
+    '<div style="flex:1"></div>'
+    '<a class="hc-nav-pill" href="#overview">Overview</a>'
+    '<a class="hc-nav-pill" href="#map">Map</a>'
+    '<a class="hc-nav-pill" href="#patterns">Patterns</a>'
+    '<a class="hc-nav-pill" href="#ai-insights">AI Insights</a>'
+    '</div>',
+    unsafe_allow_html=True,
+)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
 # HERO
 # ══════════════════════════════════════════════════════════════════════════════
 
-st.markdown("""
-<div class="hc-hero">
-    <div class="hc-hero-tag">🛰 NASA MODIS · Multi-Year Aerosol Analysis</div>
-    <div class="hc-hero-title">
-        Seasonal Haze Outlook<br><span>for Malaysian Agriculture</span>
-    </div>
-    <div class="hc-hero-sub">
-        Multi-year NASA MODIS satellite aerosol data, analysed by a four-agent AI system
-        to identify recurring haze seasons and generate pre-season crop preparedness
-        plans for Malaysian farmers.
-    </div>
-</div>
-""", unsafe_allow_html=True)
+st.markdown(
+    '<div class="hc-hero">'
+    '<div class="hc-hero-content">'
+    '<div class="hc-hero-tag">🛰 NASA MODIS &middot; Multi-Year Aerosol Analysis</div>'
+    '<div class="hc-hero-title">Seasonal Haze Outlook<br><span>for Malaysian Agriculture</span></div>'
+    '<div class="hc-hero-sub">Multi-year NASA MODIS satellite aerosol data, analysed by a four-agent AI system to identify recurring haze seasons and generate pre-season crop preparedness plans for Malaysian farmers.</div>'
+    '</div></div>',
+    unsafe_allow_html=True,
+)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -230,21 +222,18 @@ if run_analysis:
     if data_result["status"] == "error":
         agent_statuses["🔬 Data Analyst"] = "warn"
         status_placeholder.markdown(agent_status_html(agent_statuses), unsafe_allow_html=True)
-        st.markdown(f"""
-        <div class="hc-card" style="border-color:rgba(248,113,113,0.2);">
-            <div class="hc-card-header">
-                <div class="hc-card-icon icon-risk">⚠️</div>
-                <div>
-                    <div class="hc-card-title">Satellite Data Unavailable</div>
-                    <div class="hc-card-meta">Analysis could not be completed</div>
-                </div>
-            </div>
-            <div class="hc-card-body">{data_result["message"]}</div>
-            <div style="font-size:12px;color:rgba(255,255,255,0.3);">
-                Try a different state or adjust the historical data period.
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(
+            f'<div class="hc-card" style="border-left:4px solid #9B3330;">'
+            f'<div class="hc-card-header">'
+            f'<div class="hc-card-icon icon-risk">⚠️</div>'
+            f'<div><div class="hc-card-title">Satellite Data Unavailable</div>'
+            f'<div class="hc-card-meta">Analysis could not be completed</div></div>'
+            f'</div>'
+            f'<div class="hc-card-body">{data_result["message"]}</div>'
+            f'<div style="font-size:12px;color:#8FA688;">Try a different state or adjust the historical data period.</div>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
         st.stop()
 
     agent_statuses["🔬 Data Analyst"] = "ok" if data_result["status"] == "ok" else "warn"

@@ -60,37 +60,38 @@ EXPORT_COLUMNS = [
     "Seasonal_Risk_Score", "Risk_Category",
 ]
 
-# ── Plotly dark layout ────────────────────────────────────────────────────────
+# ── Plotly light layout (cream/forest design system) ──────────────────────────
 DARK_LAYOUT = dict(
     paper_bgcolor="rgba(0,0,0,0)",
-    plot_bgcolor="rgba(0,0,0,0)",
-    font=dict(color="rgba(255,255,255,0.7)", family="Inter, sans-serif", size=12),
+    plot_bgcolor="rgba(246,244,238,0.5)",
+    font=dict(color="#5C6858", family="Inter, sans-serif", size=12),
     xaxis=dict(
-        gridcolor="rgba(255,255,255,0.06)",
-        linecolor="rgba(255,255,255,0.10)",
-        tickcolor="rgba(255,255,255,0.15)",
-        zerolinecolor="rgba(255,255,255,0.06)",
+        gridcolor="rgba(228,225,214,0.8)",
+        linecolor="#E4E1D6",
+        tickcolor="#8FA688",
+        zerolinecolor="#E4E1D6",
     ),
     yaxis=dict(
-        gridcolor="rgba(255,255,255,0.06)",
-        linecolor="rgba(255,255,255,0.10)",
-        tickcolor="rgba(255,255,255,0.15)",
-        zerolinecolor="rgba(255,255,255,0.06)",
+        gridcolor="rgba(228,225,214,0.8)",
+        linecolor="#E4E1D6",
+        tickcolor="#8FA688",
+        zerolinecolor="#E4E1D6",
     ),
     legend=dict(
-        bgcolor="rgba(255,255,255,0.04)",
-        bordercolor="rgba(255,255,255,0.08)",
+        bgcolor="rgba(255,255,255,0.9)",
+        bordercolor="#E4E1D6",
         borderwidth=1,
+        font=dict(color="#1E2A1C"),
     ),
     margin=dict(l=12, r=12, t=40, b=12),
 )
 
-# ── Risk colour palette ────────────────────────────────────────────────────────
+# ── Risk colour palette (light-mode readable) ─────────────────────────────────
 RISK_COLOURS = {
-    "Low":       "#4ade80",
-    "Moderate":  "#fb923c",
-    "High":      "#f87171",
-    "Very High": "#a78bfa",
+    "Low":       "#4C6B45",
+    "Moderate":  "#A06C2A",
+    "High":      "#9B3330",
+    "Very High": "#5C2D91",
 }
 
 RISK_CSS_CLASSES = {

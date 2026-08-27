@@ -34,16 +34,15 @@ def _layout(**overrides) -> dict:
 def render_patterns_idle() -> None:
     st.markdown('<div id="patterns"></div>', unsafe_allow_html=True)
     st.markdown('<div class="hc-section-label">📈 &nbsp;Historical AOD Pattern</div>', unsafe_allow_html=True)
-    st.markdown("""
-    <div class="hc-card" style="text-align:center;padding:40px 28px;">
-        <div style="font-size:32px;margin-bottom:14px;">📈</div>
-        <div class="hc-card-title" style="font-size:17px;margin-bottom:10px;">Historical Pattern</div>
-        <div class="hc-card-body" style="max-width:440px;margin:0 auto;">
-            Run an analysis to see the multi-year monthly AOD pattern and
-            seasonal risk scores for the selected state.
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        '<div class="hc-card" style="text-align:center;padding:48px 28px;">'
+        '<div style="font-size:36px;margin-bottom:16px;">📈</div>'
+        '<div style="font-family:Fraunces,Georgia,serif;font-size:20px;font-weight:600;color:#1E2A1C;margin-bottom:10px;">Historical AOD Pattern</div>'
+        '<div style="font-size:14px;color:#5C6858;max-width:440px;margin:0 auto;line-height:1.7;">'
+        'Run an analysis to see the multi-year monthly AOD pattern and seasonal risk scores for the selected state.'
+        '</div></div>',
+        unsafe_allow_html=True,
+    )
 
 
 def render_patterns_results(pattern_result: dict,
@@ -118,8 +117,8 @@ def _render_seasonal_chart(scored_df: pd.DataFrame,
         y=df["Mean_AOD"],
         mode="lines+markers",
         name="Trend",
-        line=dict(color="#22d3ee", width=2),
-        marker=dict(size=6, color="#22d3ee", line=dict(color="#0f1117", width=1.5)),
+        line=dict(color="#4C6B45", width=2),
+        marker=dict(size=6, color="#4C6B45", line=dict(color="#F6F4EE", width=1.5)),
         hoverinfo="skip",
     ))
 
@@ -133,22 +132,22 @@ def _render_seasonal_chart(scored_df: pd.DataFrame,
             showarrow=True,
             arrowhead=2,
             ax=0, ay=-40,
-            font=dict(color="#fb923c", size=11, family="Inter"),
-            arrowcolor="#fb923c",
+            font=dict(color="#A06C2A", size=11, family="Inter"),
+            arrowcolor="#A06C2A",
         )
 
     # High-risk month shading
     for m in high_risk_months:
         fig.add_vrect(
             x0=m - 0.5, x1=m + 0.5,
-            fillcolor="rgba(248,113,113,0.06)",
+            fillcolor="rgba(155,51,48,0.06)",
             layer="below", line_width=0,
         )
 
     fig.update_layout(**_layout(
         title=dict(
             text=f"Monthly AOD Seasonal Pattern — {outlook['state']}",
-            font=dict(size=14, color="rgba(255,255,255,0.8)"),
+            font=dict(size=14, color="#1E2A1C"),
         ),
         xaxis=dict(
             tickmode="array",
@@ -181,11 +180,11 @@ def _render_risk_score_chart(scored_df: pd.DataFrame,
                     line=dict(color="rgba(255,255,255,0.1)", width=1)),
         hovertemplate="<b>%{y}</b><br>Risk Score: %{x:.1f}<extra></extra>",
     ))
-    fig.add_vline(x=50, line_dash="dot", line_color="rgba(255,255,255,0.2)",
+    fig.add_vline(x=50, line_dash="dot", line_color="#E4E1D6",
                   annotation_text="Moderate threshold (50)")
     fig.update_layout(**_layout(
         title=dict(text="Seasonal Risk Score by Month",
-                   font=dict(size=13, color="rgba(255,255,255,0.8)")),
+                   font=dict(size=13, color="#1E2A1C")),
         xaxis=dict(title="Seasonal Risk Score (0–100)", range=[0, 105]),
         yaxis=dict(autorange="reversed"),
         height=380,
@@ -222,7 +221,7 @@ def _render_yearly_chart(pattern_result: dict) -> None:
 
     fig.update_layout(**_layout(
         title=dict(text="Year-by-Year Monthly AOD Comparison",
-                   font=dict(size=14, color="rgba(255,255,255,0.8)")),
+                   font=dict(size=14, color="#1E2A1C")),
         xaxis=dict(
             tickmode="array",
             tickvals=list(range(1, 13)),

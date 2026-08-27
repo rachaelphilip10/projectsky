@@ -33,16 +33,15 @@ from config.settings import EXPORT_COLUMNS, MONTH_FULL_NAMES
 def render_ai_insights_idle() -> None:
     st.markdown('<div id="ai-insights"></div>', unsafe_allow_html=True)
     st.markdown('<div class="hc-section-label">🧠 &nbsp;AI Seasonal Insight</div>', unsafe_allow_html=True)
-    st.markdown("""
-    <div class="hc-card" style="text-align:center;padding:40px 28px;">
-        <div style="font-size:32px;margin-bottom:14px;">🧠</div>
-        <div class="hc-card-title" style="font-size:17px;margin-bottom:10px;">AI Seasonal Insight</div>
-        <div class="hc-card-body" style="max-width:440px;margin:0 auto;">
-            Run an analysis to receive an AI-generated interpretation of the
-            seasonal pattern, along with a pre-haze preparedness plan.
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        '<div class="hc-card" style="text-align:center;padding:48px 28px;">'
+        '<div style="font-size:36px;margin-bottom:16px;">🧠</div>'
+        '<div style="font-family:Fraunces,Georgia,serif;font-size:20px;font-weight:600;color:#1E2A1C;margin-bottom:10px;">AI Seasonal Insight</div>'
+        '<div style="font-size:14px;color:#5C6858;max-width:440px;margin:0 auto;line-height:1.7;">'
+        'Run an analysis to receive an AI-generated interpretation of the seasonal pattern, along with a pre-haze preparedness plan.'
+        '</div></div>',
+        unsafe_allow_html=True,
+    )
 
 
 def render_ai_insights_results(outlook_result: dict,
@@ -61,51 +60,32 @@ def render_ai_insights_results(outlook_result: dict,
     interpretation = _generate_pattern_interpretation(ai_summary)
     why_matters    = _generate_why_it_matters(ai_summary)
 
-    st.markdown(f"""
-    <div class="hc-card">
-        <div class="hc-card-header">
-            <div class="hc-card-icon icon-ai">🧠</div>
-            <div>
-                <div class="hc-card-title">AI SEASONAL INSIGHT</div>
-                <div class="hc-card-meta">
-                    Based on {ai_summary.get('historical_years', '?')}-year MODIS AOD record ·
-                    Confidence: {ai_summary.get('confidence', '?')}%
-                </div>
-            </div>
-        </div>
-        <div class="hc-ai-box">
-            <div class="hc-ai-box-label">📡 Pattern Interpretation</div>
-            <div class="hc-ai-box-text">{interpretation}</div>
-        </div>
-        <div class="hc-ai-box">
-            <div class="hc-ai-box-label">🌾 Why This Matters</div>
-            <div class="hc-ai-box-text">{why_matters}</div>
-        </div>
-        <div class="hc-disclaimer">
-            This is a seasonal outlook based on historical patterns and does not
-            guarantee a future haze event. Satellite data quality and coverage
-            affect confidence. Always combine this outlook with local knowledge
-            and official meteorological advisories.
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        f'<div class="hc-card">'
+        f'<div class="hc-card-header">'
+        f'<div class="hc-card-icon icon-ai">🧠</div>'
+        f'<div><div class="hc-card-title">AI SEASONAL INSIGHT</div>'
+        f'<div class="hc-card-meta">Based on {ai_summary.get("historical_years", "?")}-year MODIS AOD record &middot; Confidence: {ai_summary.get("confidence", "?")}%</div>'
+        f'</div></div>'
+        f'<div class="hc-ai-box"><div class="hc-ai-box-label">📡 Pattern Interpretation</div><div class="hc-ai-box-text">{interpretation}</div></div>'
+        f'<div class="hc-ai-box"><div class="hc-ai-box-label">🌾 Why This Matters</div><div class="hc-ai-box-text">{why_matters}</div></div>'
+        f'<div class="hc-disclaimer">This is a seasonal outlook based on historical patterns and does not guarantee a future haze event. Always combine with local knowledge and official meteorological advisories.</div>'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
 
     # ── Confidence factors ────────────────────────────────────────────────────
     with st.expander("📊 Pattern confidence details"):
-        st.markdown(f"""
-        <div style="padding:8px 0;">
-            <span class="hc-risk-badge {'risk-low' if confidence['confidence_label']=='High' else 'risk-moderate' if confidence['confidence_label']=='Medium' else 'risk-high'}">
-                {confidence['confidence_label']} Confidence — {confidence['confidence_pct']}%
-            </span>
-        </div>
-        <div style="font-size:14px;color:rgba(255,255,255,0.65);margin:12px 0 8px;line-height:1.7;">
-            {confidence['explanation']}
-        </div>
-        """, unsafe_allow_html=True)
+        conf_badge = 'risk-low' if confidence['confidence_label'] == 'High' else ('risk-moderate' if confidence['confidence_label'] == 'Medium' else 'risk-high')
+        st.markdown(
+            f'<div style="padding:8px 0;"><span class="hc-risk-badge {conf_badge}">{confidence["confidence_label"]} Confidence — {confidence["confidence_pct"]}%</span></div>'
+            f'<div style="font-size:14px;color:#5C6858;margin:12px 0 8px;line-height:1.7;">{confidence["explanation"]}</div>',
+            unsafe_allow_html=True,
+        )
         for factor in confidence.get("factors", []):
             st.markdown(
-                f'<div style="font-size:13px;color:rgba(255,255,255,0.45);'
-                f'padding:4px 0 4px 14px;border-left:2px solid rgba(74,222,128,0.3);">'
+                f'<div style="font-size:13px;color:#5C6858;'
+                f'padding:4px 0 4px 14px;border-left:2px solid #4C6B45;">'
                 f'• {factor}</div>',
                 unsafe_allow_html=True,
             )
@@ -114,43 +94,31 @@ def render_ai_insights_results(outlook_result: dict,
     st.markdown('<div class="hc-section-label">🌱 &nbsp;Pre-Haze Season Preparation Plan</div>', unsafe_allow_html=True)
 
     primary_label = outlook.get("primary_season_label", "the predicted period")
-    st.markdown(f"""
-    <div class="hc-card" style="border-color:rgba(74,222,128,0.15);background:rgba(74,222,128,0.02);">
-        <div class="hc-card-header">
-            <div class="hc-card-icon icon-plan">🌱</div>
-            <div>
-                <div class="hc-card-title">PRE-HAZE SEASON PREPARATION PLAN</div>
-                <div class="hc-card-meta">
-                    Predicted high-risk window: {primary_label} ·
-                    Start planning several months before the predicted period
-                </div>
-            </div>
-        </div>
-        <div class="hc-divider"></div>
-        <div style="font-size:13px;color:rgba(255,255,255,0.45);font-style:italic;margin-bottom:16px;">
-            These recommendations are for long-term pre-season planning only.
-            They are not an emergency response guide.
-        </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        f'<div class="hc-card" style="border-left:4px solid #4C6B45;">'
+        f'<div class="hc-card-header"><div class="hc-card-icon icon-plan">🌱</div>'
+        f'<div><div class="hc-card-title">PRE-HAZE SEASON PREPARATION PLAN</div>'
+        f'<div class="hc-card-meta">Predicted high-risk window: {primary_label} &middot; Start planning several months before the predicted period</div>'
+        f'</div></div>'
+        f'<div class="hc-divider"></div>'
+        f'<div style="font-size:12px;color:#8FA688;font-style:italic;margin-bottom:16px;">These recommendations are for long-term pre-season planning only. They are not an emergency response guide.</div>',
+        unsafe_allow_html=True,
+    )
 
     recommendations = preparedness_result.get("recommendations", [])
     for rec in recommendations:
         priority_css = f"priority-{rec['priority'].lower()}"
-        st.markdown(f"""
-        <div class="hc-action-card">
-            <div class="hc-action-priority {priority_css}">{rec['priority'].upper()} PRIORITY</div>
-            <div class="hc-action-title">{rec['icon']} {rec['title']}</div>
-            <div class="hc-action-why" style="margin-bottom:8px;">{rec['detail']}</div>
-            <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:8px;">
-                <div style="font-size:11px;color:rgba(255,255,255,0.4);">
-                    <span style="color:#22d3ee;font-weight:700;">WHEN:</span> {rec['when']}
-                </div>
-                <div style="font-size:11px;color:rgba(255,255,255,0.4);">
-                    <span style="color:#4ade80;font-weight:700;">WHY:</span> {rec['why']}
-                </div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(
+            f'<div class="hc-action-card">'
+            f'<div class="hc-action-priority {priority_css}">{rec["priority"].upper()} PRIORITY</div>'
+            f'<div class="hc-action-title">{rec["icon"]} {rec["title"]}</div>'
+            f'<div class="hc-action-why" style="margin-bottom:8px;">{rec["detail"]}</div>'
+            f'<div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:8px;">'
+            f'<div style="font-size:11px;color:#8FA688;"><span style="color:#4C6B45;font-weight:700;">WHEN:</span> {rec["when"]}</div>'
+            f'<div style="font-size:11px;color:#8FA688;"><span style="color:#4C6B45;font-weight:700;">WHY:</span> {rec["why"]}</div>'
+            f'</div></div>',
+            unsafe_allow_html=True,
+        )
 
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -162,13 +130,14 @@ def render_ai_insights_results(outlook_result: dict,
         st.markdown('<div class="hc-card">', unsafe_allow_html=True)
         for phase in timeline:
             items_html = "".join(f"<div>• {item}</div>" for item in phase["items"])
-            st.markdown(f"""
-            <div class="hc-timeline-phase">
-                <div class="hc-timeline-phase-title">{phase['phase']}</div>
-                <div class="hc-timeline-phase-months">{phase['months']}</div>
-                <div class="hc-timeline-phase-items">{items_html}</div>
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown(
+                f'<div class="hc-timeline-phase">'
+                f'<div class="hc-timeline-phase-title">{phase["phase"]}</div>'
+                f'<div class="hc-timeline-phase-months">{phase["months"]}</div>'
+                f'<div class="hc-timeline-phase-items">{items_html}</div>'
+                f'</div>',
+                unsafe_allow_html=True,
+            )
         st.markdown('</div>', unsafe_allow_html=True)
 
     # ── Data Transparency expander ────────────────────────────────────────────
@@ -234,28 +203,26 @@ def _render_data_transparency(data_result: dict,
                                outlook_result: dict) -> None:
     with st.expander("🔬 View Satellite Analysis Details"):
         ai_summary = outlook_result["ai_input_summary"]
-        st.markdown(f"""
-        <div style="font-size:13px;color:rgba(255,255,255,0.55);line-height:2;">
-            <strong style="color:#ffffff;">Dataset:</strong> MODIS/061/MCD19A2_GRANULES (NASA MODIS MAIAC)<br>
-            <strong style="color:#ffffff;">AOD Band:</strong> Optical_Depth_055 (~0.55 µm)<br>
-            <strong style="color:#ffffff;">State:</strong> {ai_summary.get('location', '—')}<br>
-            <strong style="color:#ffffff;">Analysis period:</strong>
-                {data_result.get('start_year', '—')} – {data_result.get('end_year', '—')}<br>
-            <strong style="color:#ffffff;">Years analysed:</strong> {data_result.get('n_years', '—')}<br>
-            <strong style="color:#ffffff;">Valid observations:</strong>
-                {data_result.get('valid_obs', '—')} / {data_result.get('total_expected', '—')}
-                ({ai_summary.get('completeness_pct', 0):.0f}% completeness)<br>
-            <strong style="color:#ffffff;">Pattern confidence:</strong>
-                {ai_summary.get('confidence', '—')}% ({ai_summary.get('confidence_label', '—')})<br>
-            <strong style="color:#ffffff;">Peak-month agreement:</strong>
-                {ai_summary.get('pattern_consistency', 0) * 100:.0f}% of years<br>
-        </div>
-        """, unsafe_allow_html=True)
+        completeness = f"{ai_summary.get('completeness_pct', 0):.0f}"
+        consistency  = f"{ai_summary.get('pattern_consistency', 0) * 100:.0f}"
+        st.markdown(
+            f'<div style="font-size:13px;color:#5C6858;line-height:2;">'
+            f'<strong style="color:#1E2A1C;">Dataset:</strong> MODIS/061/MCD19A2_GRANULES (NASA MODIS MAIAC)<br>'
+            f'<strong style="color:#1E2A1C;">AOD Band:</strong> Optical_Depth_055 (~0.55 µm)<br>'
+            f'<strong style="color:#1E2A1C;">State:</strong> {ai_summary.get("location", "—")}<br>'
+            f'<strong style="color:#1E2A1C;">Analysis period:</strong> {data_result.get("start_year", "—")} – {data_result.get("end_year", "—")}<br>'
+            f'<strong style="color:#1E2A1C;">Years analysed:</strong> {data_result.get("n_years", "—")}<br>'
+            f'<strong style="color:#1E2A1C;">Valid observations:</strong> {data_result.get("valid_obs", "—")} / {data_result.get("total_expected", "—")} ({completeness}% completeness)<br>'
+            f'<strong style="color:#1E2A1C;">Pattern confidence:</strong> {ai_summary.get("confidence", "—")}% ({ai_summary.get("confidence_label", "—")})<br>'
+            f'<strong style="color:#1E2A1C;">Peak-month agreement:</strong> {consistency}% of years<br>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
 
         scored_df = pattern_result.get("scored_df")
         if scored_df is not None and not scored_df.empty:
             st.markdown(
-                '<div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.4);'
+                '<div style="font-size:11px;font-weight:700;color:#8FA688;'
                 'margin:16px 0 8px;letter-spacing:0.8px;text-transform:uppercase;">'
                 'Monthly Seasonal Scores</div>',
                 unsafe_allow_html=True,
