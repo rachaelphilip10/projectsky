@@ -70,6 +70,18 @@ if not ee_ready:
     st.stop()
 
 # ── Remaining imports (after EE is confirmed ready) ───────────────────────────
+from services.aod_service import get_historical_aod as _get_historical_aod
+
+
+@st.cache_data(show_spinner=False, ttl=3600)
+def _fetch_aod_cached(_region_fao_name: str,
+                      start_year: int,
+                      end_year: int,
+                      state_name: str):
+    """Cached wrapper around get_historical_aod for app-level reuse."""
+    return _get_historical_aod(_region_fao_name, start_year, end_year, state_name)
+
+
 from services.malaysia_regions import MALAYSIA_STATES
 from config.settings import (
     DEFAULT_STATE,

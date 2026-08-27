@@ -20,6 +20,7 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 import ee
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from config.settings import (
     MODIS_COLLECTION,
@@ -82,24 +83,33 @@ def get_monthly_aod(region: ee.FeatureCollection,
     Return (mean_aod, max_aod) for a single month.
 
     Returns (None, None) if the collection is empty or EE is unavailable.
+    Skips the col.size() pre-check to save one EE round-trip per month.
     """
     start = f"{year}-{month:02d}-01"
-    if month == 12:
-        end = f"{year + 1}-01-01"
-    else:
-        end = f"{year}-{month + 1:02d}-01"
+    end   = f"{year + 1}-01-01" if month == 12 else f"{year}-{month + 1:02d}-01"
 
-    col = _aod_collection(region, start, end)
-    size = _safe_getinfo(col.size())
-    if not size:
+    try:
+        col    = _aod_collection(region, start, end)
+        result = col.mean().reduceRegion(
+            reducer=ee.Reducer.mean().combine(
+                ee.Reducer.max(), sharedInputs=True
+            ),
+            geometry=region.geometry(),
+            scale=MODIS_SCALE_METRES,
+            maxPixels=MODIS_MAX_PIXELS,
+            bestEffort=True,
+        )
+        info = _safe_getinfo(result)
+        if info is None:
+            return None, None
+        mean_val = info.get(f"{MODIS_AOD_BAND}_mean")
+        max_val  = info.get(f"{MODIS_AOD_BAND}_max")
+        return (
+            float(mean_val) if mean_val is not None else None,
+            float(max_val)  if max_val  is not None else None,
+        )
+    except Exception:
         return None, None
-
-    mean_img = col.mean()
-    max_img  = col.max()
-
-    mean_val = _reduce_to_scalar(mean_img, region, ee.Reducer.mean())
-    max_val  = _reduce_to_scalar(max_img,  region, ee.Reducer.max())
-    return mean_val, max_val
 
 
 @st.cache_data(ttl=3600, show_spinner=False)
@@ -154,18 +164,29 @@ def get_historical_aod(_region_fao_name: str,
         .filter(ee.Filter.eq("ADM1_NAME", fao_name))
     )
 
-    rows = []
-    for year in range(start_year, end_year + 1):
-        for month in range(1, 13):
-            mean_val, max_val = get_monthly_aod(region, year, month)
-            rows.append({
-                "Date":        pd.Timestamp(f"{year}-{month:02d}-01"),
-                "Year":        year,
-                "Month":       month,
-                "State":       state_name,
-                "Mean_AOD":    mean_val if mean_val is not None else np.nan,
-                "Maximum_AOD": max_val  if max_val  is not None else np.nan,
-            })
+    def _fetch_month(year: int, month: int) -> dict:
+        mean_val, max_val = get_monthly_aod(region, year, month)
+        return {
+            "Date":        pd.Timestamp(f"{year}-{month:02d}-01"),
+            "Year":        year,
+            "Month":       month,
+            "State":       state_name,
+            "Mean_AOD":    mean_val if mean_val is not None else np.nan,
+            "Maximum_AOD": max_val  if max_val  is not None else np.nan,
+        }
+
+    tasks = [
+        (y, m)
+        for y in range(start_year, end_year + 1)
+        for m in range(1, 13)
+    ]
+    rows: list[dict] = []
+    with ThreadPoolExecutor(max_workers=8) as executor:
+        futures = {executor.submit(_fetch_month, y, m): (y, m) for y, m in tasks}
+        for future in as_completed(futures):
+            rows.append(future.result())
+
+    rows.sort(key=lambda r: r["Date"])
     return pd.DataFrame(rows)
 
 

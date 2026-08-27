@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 HazeCrop Malaysia — Google Earth Engine initialisation.
 
@@ -81,7 +83,10 @@ def _resolve_project() -> str | None:
     project = os.environ.get("EARTHENGINE_PROJECT")
     if not project:
         try:
-            project = st.secrets.get("earthengine_project", None)
+            project = (
+                st.secrets.get("EARTHENGINE_PROJECT", None)
+                or st.secrets.get("earthengine_project", None)
+            )
         except Exception:
             project = None
     return project or None

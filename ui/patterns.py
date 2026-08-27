@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 HazeCrop Malaysia — UI: Historical Pattern Tab
 
@@ -9,8 +11,6 @@ Public API
   render_patterns_idle()
   render_patterns_results(pattern_result, outlook_result, historical_years)
 """
-
-from __future__ import annotations
 
 import numpy as np
 import pandas as pd
@@ -135,6 +135,14 @@ def _render_seasonal_chart(scored_df: pd.DataFrame,
             font=dict(color="#A06C2A", size=11, family="Inter"),
             arrowcolor="#A06C2A",
         )
+
+    # Peak month vertical line
+    fig.add_vline(
+        x=peak_month - 1,
+        line_dash="dot",
+        line_color="rgba(251,146,60,0.5)",
+        annotation_text="",
+    )
 
     # High-risk month shading
     for m in high_risk_months:

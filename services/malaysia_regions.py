@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 HazeCrop Malaysia — State boundary helpers.
 
@@ -12,6 +14,7 @@ Provides:
 import streamlit as st
 import ee
 from config.settings import FAO_GAUL_L1, FAO_GAUL_COUNTRY
+from services.earth_engine import initialize_earth_engine
 
 
 # ── Display-name list (shown in the UI selectbox) ────────────────────────────
@@ -87,6 +90,7 @@ def get_selected_region(state_display_name: str) -> ee.FeatureCollection:
         Filtered to the single state/territory.
     """
     fao_name = FAO_NAME_MAP.get(state_display_name, state_display_name)
+    initialize_earth_engine()
     return (
         ee.FeatureCollection(FAO_GAUL_L1)
         .filter(ee.Filter.eq("ADM1_NAME", fao_name))

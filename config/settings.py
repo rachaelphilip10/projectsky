@@ -46,10 +46,16 @@ MIN_YEARS_MEDIUM_CONFIDENCE = 3   # 3–5 years → Medium
 CONSISTENCY_HIGH_THRESHOLD   = 0.70   # peak-month agreement ≥ 70% → consistent
 CONSISTENCY_MEDIUM_THRESHOLD = 0.40
 
+CONFIDENCE_LABELS = {
+    "High":   65,   # score ≥ 65 → High confidence
+    "Medium": 40,   # score ≥ 40 → Medium confidence
+    # below 40 → Low confidence
+}
+
 # ── Analysis defaults ─────────────────────────────────────────────────────────
 DEFAULT_STATE           = "Selangor"
 DEFAULT_TARGET_YEAR     = 2027
-DEFAULT_HISTORICAL_YEARS = 5
+DEFAULT_HISTORICAL_YEARS = 3
 MIN_HISTORICAL_YEARS    = 3
 MAX_HISTORICAL_YEARS    = 10
 
