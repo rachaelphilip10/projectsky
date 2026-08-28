@@ -95,8 +95,10 @@ div.element-container {
     color: var(--muted); cursor: pointer; transition: all 0.2s;
     border: 1px solid var(--line); text-decoration: none;
     background: var(--card);
+    font-family: 'Inter', sans-serif;
+    outline: none; box-shadow: none;
 }
-.hc-nav-pill:hover {
+.hc-nav-pill:hover, .hc-nav-pill:focus {
     color: var(--forest); background: var(--cream);
     border-color: var(--moss); text-decoration: none;
 }
@@ -159,7 +161,7 @@ div.element-container {
 /* ── Section label ── */
 .hc-section-label {
     font-size: 10px; font-weight: 700; letter-spacing: 1.4px;
-    text-transform: uppercase; color: var(--sage); padding: 24px 0 10px;
+    text-transform: uppercase; color: var(--muted); padding: 24px 0 10px;
     display: flex; align-items: center; gap: 10px;
 }
 .hc-section-label::after {
@@ -235,9 +237,9 @@ div.element-container {
 
 /* ── Settings panel ── */
 .hc-settings {
-    background: var(--card); border: 1px solid var(--line);
-    border-radius: var(--radius); padding: 20px 24px; margin-bottom: 24px;
-    box-shadow: var(--shadow);
+    background: transparent; border: none;
+    border-radius: var(--radius); padding: 20px 0; margin-bottom: 8px;
+    box-shadow: none;
 }
 .hc-settings-title {
     font-size: 10px; font-weight: 700; color: var(--sage);

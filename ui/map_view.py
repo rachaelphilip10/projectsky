@@ -18,10 +18,14 @@ from __future__ import annotations
 import streamlit as st
 
 try:
-    import geemap
+    import geemap.foliumap as geemap
     GEEMAP_AVAILABLE = True
 except Exception:
-    GEEMAP_AVAILABLE = False
+    try:
+        import geemap
+        GEEMAP_AVAILABLE = True
+    except Exception:
+        GEEMAP_AVAILABLE = False
 
 import ee
 from services.malaysia_regions import get_state_centroid, FAO_NAME_MAP
@@ -39,13 +43,8 @@ _AOD_VIS = {
 def render_map_idle(state: str) -> None:
     st.markdown('<div id="map"></div>', unsafe_allow_html=True)
     st.markdown('<div class="hc-section-label">🗺 &nbsp;Satellite Map</div>', unsafe_allow_html=True)
-    st.markdown(
-        '<div style="background:#FFFFFF;border:1px solid #E4E1D6;border-radius:16px;overflow:hidden;">',
-        unsafe_allow_html=True,
-    )
     lat, lon = get_state_centroid(state)
     _render_base_map(lat, lon, state, zoom=8)
-    st.markdown('</div>', unsafe_allow_html=True)
 
 
 def render_map_results(state: str,
@@ -56,10 +55,6 @@ def render_map_results(state: str,
     """Render the map with AOD or Historical Pattern layer."""
     st.markdown('<div id="map"></div>', unsafe_allow_html=True)
     st.markdown('<div class="hc-section-label">🗺 &nbsp;Satellite Map</div>', unsafe_allow_html=True)
-    st.markdown(
-        '<div style="background:#FFFFFF;border:1px solid #E4E1D6;border-radius:16px;overflow:hidden;padding:16px 16px 0;">',
-        unsafe_allow_html=True,
-    )
 
     mode = st.radio(
         "Map layer",
@@ -75,8 +70,6 @@ def render_map_results(state: str,
     else:
         _render_historical_layer(state, data_result, lat, lon, outlook_result)
 
-    st.markdown('</div>', unsafe_allow_html=True)
-
 
 # ─── Internal renderers ───────────────────────────────────────────────────────
 
@@ -88,7 +81,7 @@ def _render_base_map(lat: float, lon: float, state: str, zoom: int = 8) -> None:
 
     try:
         m = geemap.Map(center=[lat, lon], zoom=zoom)
-        m.add_basemap("CartoDB.DarkMatter")
+        m.add_basemap("CartoDB.Positron")
 
         # State boundary
         fao_name = FAO_NAME_MAP.get(state, state)
@@ -97,11 +90,11 @@ def _render_base_map(lat: float, lon: float, state: str, zoom: int = 8) -> None:
             .filter(ee.Filter.eq("ADM1_NAME", fao_name))
         )
         m.addLayer(
-            state_fc.style(color="#22d3ee", fillColor="00000000", width=2),
+            state_fc.style(**{"color": "#22d3ee", "fillColor": "#00000000", "width": 2}),
             {},
             f"{state} boundary",
         )
-        m.to_streamlit(height=440)
+        m.to_streamlit(height=440, width=-1)
     except Exception as exc:
         _map_error_card(str(exc))
 
@@ -126,7 +119,7 @@ def _render_aod_layer(state: str, target_year: int, historical_years: int,
         aod_image = get_aod_image(region, start_date, end_date)
 
         m = geemap.Map(center=[lat, lon], zoom=8)
-        m.add_basemap("CartoDB.DarkMatter")
+        m.add_basemap("CartoDB.Positron")
 
         if aod_image is not None:
             m.addLayer(aod_image, _AOD_VIS, f"Mean AOD {start_year}–{target_year - 1}")
@@ -140,7 +133,7 @@ def _render_aod_layer(state: str, target_year: int, historical_years: int,
 
         # State outline
         m.addLayer(
-            region.style(color="#22d3ee", fillColor="00000000", width=2),
+            region.style(**{"color": "#22d3ee", "fillColor": "#00000000", "width": 2}),
             {},
             f"{state} boundary",
         )
@@ -151,7 +144,7 @@ def _render_aod_layer(state: str, target_year: int, historical_years: int,
             .filter(ee.Filter.eq("ADM0_NAME", "Malaysia"))
         )
         m.addLayer(
-            malaysia.style(color="rgba(255,255,255,0.4)", fillColor="00000000", width=1),
+            malaysia.style(**{"color": "#AAAAAA", "fillColor": "#00000000", "width": 1}),
             {},
             "Malaysia",
         )
@@ -202,7 +195,7 @@ def _render_historical_layer(state: str, data_result: dict,
         if images:
             composite = ee.ImageCollection(images).mean()
             m = geemap.Map(center=[lat, lon], zoom=8)
-            m.add_basemap("CartoDB.DarkMatter")
+            m.add_basemap("CartoDB.Positron")
             m.addLayer(composite, _AOD_VIS, f"Historical Pattern — peak month")
             m.add_colorbar(
                 vis_params=_AOD_VIS,
@@ -211,11 +204,11 @@ def _render_historical_layer(state: str, data_result: dict,
             )
         else:
             m = geemap.Map(center=[lat, lon], zoom=8)
-            m.add_basemap("CartoDB.DarkMatter")
+            m.add_basemap("CartoDB.Positron")
             st.warning("Historical pattern composite unavailable. Showing boundary only.")
 
         m.addLayer(
-            region.style(color="#22d3ee", fillColor="00000000", width=2),
+            region.style(**{"color": "#22d3ee", "fillColor": "#00000000", "width": 2}),
             {},
             f"{state} boundary",
         )
@@ -242,7 +235,8 @@ def _map_error_card(error: str) -> None:
         '<div class="hc-card" style="border-left:4px solid #9B3330;text-align:center;padding:36px 28px;">'
         '<div style="font-size:28px;margin-bottom:12px;">⚠️</div>'
         '<div style="font-family:Fraunces,Georgia,serif;font-size:16px;font-weight:600;color:#1E2A1C;margin-bottom:6px;">Map rendering error</div>'
-        '<div style="font-size:13px;color:#5C6858;">The satellite map could not be displayed for this configuration. The analysis results above are still valid.</div>'
+        '<div style="font-size:13px;color:#5C6858;margin-bottom:10px;">The satellite map could not be displayed for this configuration. The analysis results above are still valid.</div>'
+        f'<div style="font-size:11px;color:#9B3330;background:#FAEAEA;border-radius:8px;padding:8px 12px;text-align:left;word-break:break-word;">{error}</div>'
         '</div>',
         unsafe_allow_html=True,
     )

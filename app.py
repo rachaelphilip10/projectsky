@@ -101,17 +101,57 @@ from ui.ai_insights import render_ai_insights_idle, render_ai_insights_results
 # NAVBAR
 # ══════════════════════════════════════════════════════════════════════════════
 
-st.markdown(
-    '<div class="hc-navbar">'
-    '<div class="hc-logo">🌾&nbsp;<span>HazeCrop</span></div>'
-    '<div style="flex:1"></div>'
-    '<a class="hc-nav-pill" href="#overview">Overview</a>'
-    '<a class="hc-nav-pill" href="#map">Map</a>'
-    '<a class="hc-nav-pill" href="#patterns">Patterns</a>'
-    '<a class="hc-nav-pill" href="#ai-insights">AI Insights</a>'
-    '</div>',
-    unsafe_allow_html=True,
-)
+import streamlit.components.v1 as components
+
+st.markdown("""
+<div class="hc-navbar">
+    <div class="hc-logo">🌾&nbsp;<span>HazeCrop</span></div>
+    <div style="flex:1"></div>
+    <button class="hc-nav-pill" id="nav-0">Overview</button>
+    <button class="hc-nav-pill" id="nav-1">Map</button>
+    <button class="hc-nav-pill" id="nav-2">Patterns</button>
+    <button class="hc-nav-pill" id="nav-3">AI Insights</button>
+</div>
+""", unsafe_allow_html=True)
+
+components.html("""
+<script>
+(function() {
+    function switchTab(index) {
+        var tabs = window.parent.document.querySelectorAll('[data-baseweb="tab"]');
+        if (tabs && tabs[index]) {
+            tabs[index].click();
+            setTimeout(function() {
+                var tabList = window.parent.document.querySelector('[data-baseweb="tab-list"]');
+                if (tabList) {
+                    tabList.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 100);
+        }
+    }
+    // Attach to buttons in the parent document
+    function attachListeners() {
+        var parent = window.parent.document;
+        for (var i = 0; i < 4; i++) {
+            var btn = parent.getElementById('nav-' + i);
+            if (btn) {
+                (function(idx) {
+                    btn.addEventListener('click', function() { switchTab(idx); });
+                })(i);
+            }
+        }
+    }
+    // Wait for parent DOM to be ready
+    if (window.parent.document.readyState === 'complete') {
+        attachListeners();
+    } else {
+        window.parent.document.addEventListener('DOMContentLoaded', attachListeners);
+    }
+    // Retry after a short delay in case Streamlit re-renders
+    setTimeout(attachListeners, 800);
+})();
+</script>
+""", height=0)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -211,10 +251,13 @@ else:
 # ══════════════════════════════════════════════════════════════════════════════
 
 if run_analysis:
+    import time
     from agents.data_analyst       import run_data_analyst
     from agents.pattern_analyst    import run_pattern_analyst
     from agents.outlook_agent      import run_outlook_agent
     from agents.preparedness_agent import run_preparedness_agent
+
+    _t_start = time.time()
 
     agent_statuses = {
         "🔬 Data Analyst":       "off",
@@ -278,17 +321,24 @@ if run_analysis:
     status_placeholder.markdown(agent_status_html(agent_statuses), unsafe_allow_html=True)
 
     # ── Store results in session state ────────────────────────────────────────
+    _elapsed = time.time() - _t_start
     st.session_state.analysis_completed    = True
     st.session_state.settings_changed      = False
     st.session_state.last_state            = state
     st.session_state.last_year             = target_year
     st.session_state.last_historical_years = historical_years
+    st.session_state.last_load_time        = _elapsed
     st.session_state.analysis_results      = {
         "data_result":         data_result,
         "pattern_result":      pattern_result,
         "outlook_result":      outlook_result,
         "preparedness_result": preparedness_result,
     }
+    status_placeholder.markdown(
+        agent_status_html(agent_statuses)
+        + f'<div style="font-size:11px;color:#8FA688;margin-top:6px;">⏱ Analysis completed in {_elapsed:.1f}s</div>',
+        unsafe_allow_html=True,
+    )
 
 
 # ══════════════════════════════════════════════════════════════════════════════
