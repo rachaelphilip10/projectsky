@@ -11,7 +11,7 @@ HazeCrop uses multi-year NASA MODIS satellite Aerosol Optical Depth (AOD) data t
 ```
 NASA MODIS MAIAC satellite data (MODIS/061/MCD19A2_GRANULES)
         ↓
-Data Analyst Agent    — fetch & validate historical AOD
+Data Analyst Agent    — fetch & validate historical AOD (parallel, cached)
         ↓
 Pattern Analyst Agent — detect seasonal recurring patterns
         ↓
@@ -19,7 +19,7 @@ Outlook Agent         — generate seasonal haze outlook + confidence
         ↓
 Preparedness Agent    — produce pre-season crop planning guide
         ↓
-Interactive Dashboard
+Interactive Dashboard (Overview · Patterns · AI Insights)
 ```
 
 The system answers three questions immediately:
@@ -33,14 +33,24 @@ The system answers three questions immediately:
 ## Features
 
 - 🛰 **NASA MODIS MAIAC AOD** — uses `MODIS/061/MCD19A2_GRANULES`, Optical_Depth_055 band (~0.55 µm)
-- 📈 **Multi-year seasonal pattern detection** — analyses 3–10 years of monthly AOD data
+- 📈 **Multi-year seasonal pattern detection** — analyses up to 10 years of monthly AOD data
 - 🧠 **Four-agent AI pipeline** — Data Analyst → Pattern Analyst → Outlook Agent → Preparedness Agent
+- ⚡ **Parallel AOD fetching with caching** — faster analysis, results cached for 1 hour
 - 🗓 **Dynamic preparation timeline** — adjusts to the predicted haze window
-- 🗺 **Interactive satellite map** — AOD raster + state boundary using geemap
 - 📊 **Data transparency** — expandable section with full monthly AOD statistics
 - 📥 **CSV and report export** — download monthly data and the full outlook report
-- ⚡ **Reactive UI** — expensive satellite queries only run when the user clicks Analyse
 - 🔒 **No fake data** — confidence scores are calculated from actual data quality metrics
+- 🎨 **HazeCrop design system** — warm cream/forest-green editorial UI with farm imagery
+
+---
+
+## Dashboard Tabs
+
+| Tab | Contents |
+|---|---|
+| 📡 **Overview** | Seasonal outlook card, risk level, peak month, AOD, confidence, preparedness actions |
+| 📈 **Patterns** | Monthly AOD bar chart, year-by-year comparison, seasonal risk score chart |
+| 🧠 **AI Insights** | Pattern interpretation, why it matters, full preparedness plan, timeline, data export |
 
 ---
 
@@ -62,11 +72,11 @@ hazecrop/
 ├── README.md
 │
 ├── config/
-│   └── settings.py               # All constants and tuning weights
+│   └── settings.py               # All constants, tuning weights, Plotly layout
 │
 ├── services/
-│   ├── earth_engine.py           # EE initialisation
-│   ├── aod_service.py            # MODIS MAIAC AOD queries
+│   ├── earth_engine.py           # EE initialisation (interactive + service account)
+│   ├── aod_service.py            # MODIS MAIAC AOD queries (parallel fetching)
 │   └── malaysia_regions.py       # State boundaries & centroids
 │
 ├── analysis/
@@ -81,11 +91,10 @@ hazecrop/
 │   └── preparedness_agent.py     # Agent 4: crop preparedness plan
 │
 ├── ui/
-│   ├── styles.py                 # Global CSS (dark glassmorphism theme)
-│   ├── overview.py               # Overview cards
-│   ├── map_view.py               # Satellite map
+│   ├── styles.py                 # Global CSS (cream/forest design system)
+│   ├── overview.py               # Overview tab
 │   ├── patterns.py               # Historical AOD pattern charts
-│   └── ai_insights.py           # AI insights + preparedness plan
+│   └── ai_insights.py            # AI insights + preparedness plan
 │
 └── utils/
     ├── formatters.py             # Number and HTML formatters
@@ -128,8 +137,8 @@ In Google Cloud Console, enable the **Google Earth Engine API** for your project
 ### Clone the repository
 
 ```bash
-git clone https://github.com/your-org/hazecrop-malaysia.git
-cd hazecrop-malaysia
+git clone https://github.com/rachaelphilip10/projectsky.git
+cd projectsky
 ```
 
 ### Create a virtual environment
@@ -149,13 +158,37 @@ pip install -r requirements.txt
 
 ## Earth Engine Authentication
 
-### First time (interactive)
+### Option 1 — Interactive (local development)
 
 ```bash
 earthengine authenticate
 ```
 
-This opens a browser window and saves credentials locally.
+This opens a browser window and saves credentials locally. Then set your project:
+
+```bash
+# Linux / macOS
+export EARTHENGINE_PROJECT=your-project-id
+
+# Windows PowerShell
+$env:EARTHENGINE_PROJECT = "your-project-id"
+```
+
+### Option 2 — Service account (Streamlit Cloud / server deployment)
+
+Create a service account in Google Cloud Console with Earth Engine access, download the JSON key, and add it to `.streamlit/secrets.toml`:
+
+```toml
+earthengine_project = "your-project-id"
+
+[gee_service_account]
+type = "service_account"
+project_id = "your-project-id"
+private_key_id = "..."
+private_key = "-----BEGIN RSA PRIVATE KEY-----\n..."
+client_email = "your-sa@your-project.iam.gserviceaccount.com"
+# ... (full service account JSON fields)
+```
 
 ### Verify authentication
 
@@ -170,22 +203,6 @@ python -c "import ee; ee.Initialize(project='your-project-id'); print('EE ready'
 | Variable | Description | Required |
 |---|---|---|
 | `EARTHENGINE_PROJECT` | Your GEE project ID | Recommended |
-
-Set it before running the app:
-
-```bash
-# Linux / macOS
-export EARTHENGINE_PROJECT=your-project-id
-
-# Windows PowerShell
-$env:EARTHENGINE_PROJECT = "your-project-id"
-```
-
-Alternatively, add it to a `.streamlit/secrets.toml` file:
-
-```toml
-earthengine_project = "your-project-id"
-```
 
 ---
 
@@ -203,10 +220,11 @@ Open your browser at [http://localhost:8501](http://localhost:8501).
 
 1. **Select a state** from the dropdown (default: Selangor)
 2. **Choose a target year** for the seasonal outlook
-3. **Adjust the historical data slider** (3–10 years)
-4. Click **🚀 Analyse Haze Pattern**
-5. Review the seasonal outlook, pattern charts, map, and AI insights
-6. Download the CSV data or the full Outlook Report
+3. Click **🚀 Analyse Haze Pattern**
+4. Review the **Overview** tab for the seasonal outlook and preparedness actions
+5. Switch to **Patterns** to explore the monthly AOD charts
+6. Switch to **AI Insights** for the full interpretation and preparation plan
+7. Download the CSV data or the full Outlook Report from the AI Insights tab
 
 ---
 
