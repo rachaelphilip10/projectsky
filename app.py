@@ -92,66 +92,8 @@ from utils.dates import current_year
 from utils.formatters import agent_status_html
 
 from ui.overview    import render_overview_idle, render_overview_results, render_settings_changed_banner
-from ui.map_view    import render_map_idle, render_map_results
 from ui.patterns    import render_patterns_idle, render_patterns_results
 from ui.ai_insights import render_ai_insights_idle, render_ai_insights_results
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-# NAVBAR
-# ══════════════════════════════════════════════════════════════════════════════
-
-import streamlit.components.v1 as components
-
-st.markdown("""
-<div class="hc-navbar">
-    <div class="hc-logo">🌾&nbsp;<span>HazeCrop</span></div>
-    <div style="flex:1"></div>
-    <button class="hc-nav-pill" id="nav-0">Overview</button>
-    <button class="hc-nav-pill" id="nav-1">Map</button>
-    <button class="hc-nav-pill" id="nav-2">Patterns</button>
-    <button class="hc-nav-pill" id="nav-3">AI Insights</button>
-</div>
-""", unsafe_allow_html=True)
-
-components.html("""
-<script>
-(function() {
-    function switchTab(index) {
-        var tabs = window.parent.document.querySelectorAll('[data-baseweb="tab"]');
-        if (tabs && tabs[index]) {
-            tabs[index].click();
-            setTimeout(function() {
-                var tabList = window.parent.document.querySelector('[data-baseweb="tab-list"]');
-                if (tabList) {
-                    tabList.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            }, 100);
-        }
-    }
-    // Attach to buttons in the parent document
-    function attachListeners() {
-        var parent = window.parent.document;
-        for (var i = 0; i < 4; i++) {
-            var btn = parent.getElementById('nav-' + i);
-            if (btn) {
-                (function(idx) {
-                    btn.addEventListener('click', function() { switchTab(idx); });
-                })(i);
-            }
-        }
-    }
-    // Wait for parent DOM to be ready
-    if (window.parent.document.readyState === 'complete') {
-        attachListeners();
-    } else {
-        window.parent.document.addEventListener('DOMContentLoaded', attachListeners);
-    }
-    // Retry after a short delay in case Streamlit re-renders
-    setTimeout(attachListeners, 800);
-})();
-</script>
-""", height=0)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -356,21 +298,12 @@ if st.session_state.analysis_completed and st.session_state.analysis_results:
     outlook_result      = results["outlook_result"]
     preparedness_result = results["preparedness_result"]
 
-    tab_overview, tab_map, tab_patterns, tab_insights = st.tabs(
-        ["📡 Overview", "🗺 Map", "📈 Patterns", "🧠 AI Insights"]
+    tab_overview, tab_patterns, tab_insights = st.tabs(
+        ["📡 Overview", "📈 Patterns", "🧠 AI Insights"]
     )
 
     with tab_overview:
         render_overview_results(outlook_result, preparedness_result)
-
-    with tab_map:
-        render_map_results(
-            st.session_state.last_state,
-            st.session_state.last_year,
-            st.session_state.last_historical_years,
-            outlook_result,
-            data_result,
-        )
 
     with tab_patterns:
         render_patterns_results(
@@ -388,15 +321,12 @@ if st.session_state.analysis_completed and st.session_state.analysis_results:
         )
 
 else:
-    tab_overview, tab_map, tab_patterns, tab_insights = st.tabs(
-        ["📡 Overview", "🗺 Map", "📈 Patterns", "🧠 AI Insights"]
+    tab_overview, tab_patterns, tab_insights = st.tabs(
+        ["📡 Overview", "📈 Patterns", "🧠 AI Insights"]
     )
 
     with tab_overview:
         render_overview_idle(state, target_year)
-
-    with tab_map:
-        render_map_idle(state)
 
     with tab_patterns:
         render_patterns_idle()
