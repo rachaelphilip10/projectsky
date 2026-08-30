@@ -6,6 +6,89 @@ HazeCrop uses multi-year NASA MODIS satellite Aerosol Optical Depth (AOD) data t
 
 ---
 
+## Problem Statement
+
+Haze is a recurring environmental challenge in Malaysia, often with transboundary origins. Smoke from forest and peatland fires in Indonesia is carried by prevailing winds across the Strait of Malacca and into Malaysian states, particularly during the southwest monsoon season (June–October). Malaysia can monitor conditions and issue advisories, but cannot directly control fire activity outside its borders.
+
+Small-scale farmers are among the most exposed groups. Persistent haze reduces photosynthetically active radiation, suppresses crop growth and productivity, and can cause significant yield losses — particularly for light-sensitive crops such as paddy, vegetables, and fruit trees. Yet access to specialised environmental intelligence is limited for most farmers, who must rely on general news advisories rather than location-specific, actionable guidance.
+
+There is a clear gap between the complexity of scientific satellite data and the practical information a farmer needs to protect their livelihood. HazeCrop Malaysia was built to bridge that gap.
+
+---
+
+## Solution Description
+
+**HazeCrop Malaysia** uses historical NASA MODIS MAIAC Aerosol Optical Depth (AOD) data accessed through Google Earth Engine to identify recurring seasonal haze patterns at the state level across Malaysia. Rather than presenting raw satellite data, it converts complex multi-year aerosol measurements into simple, farmer-friendly guidance.
+
+The system is built around three core questions:
+
+* **When is haze historically most likely?** — based on up to 10 years of monthly AOD data
+* **Why is that period risky?** — explained through pattern analysis and seasonal risk scores
+* **What should farmers prepare?** — concrete pre-season actions tailored to the anticipated haze window
+
+Through its Streamlit dashboard, HazeCrop delivers:
+
+- A **seasonal risk outlook** for any selected Malaysian state and target year
+- **Historical AOD patterns** showing month-by-month and year-by-year aerosol trends
+- **AI-generated recommendations** from a four-agent pipeline interpreting the satellite data
+- A **month-by-month preparation timeline** starting before the anticipated haze season
+
+> HazeCrop provides a historical seasonal outlook to support pre-season planning. It is not a guaranteed real-time haze forecast.
+
+---
+
+## AI Approach and Architecture
+
+HazeCrop uses a sequential four-agent AI pipeline. Each agent operates on actual satellite-derived data; confidence scores are calculated from data quality metrics rather than fabricated values.
+
+```
+NASA MODIS MAIAC satellite data
+(MODIS/061/MCD19A2_GRANULES)
+        ↓
+Data Analyst Agent
+— fetches and validates historical AOD data using parallel processing and caching
+        ↓
+Pattern Analyst Agent
+— identifies recurring seasonal AOD patterns and computes monthly risk scores
+        ↓
+Outlook Agent
+— generates the seasonal haze outlook, peak-month prediction, and data-driven confidence level
+        ↓
+Preparedness Agent
+— converts the outlook into practical, pre-season crop preparation actions
+        ↓
+Interactive Streamlit Dashboard
+(Overview · Patterns · AI Insights)
+```
+
+See the **How It Works** and **Architecture** sections below for the full technical detail.
+
+---
+
+## Selected Challenge Theme
+
+**Agriculture / Environmental Sustainability / Climate Resilience**
+
+HazeCrop addresses the intersection of environmental monitoring and agricultural resilience. It uses satellite climate data to help small-scale farmers in Southeast Asia anticipate and prepare for seasonal haze events driven by transboundary fire and land-use patterns — a challenge that is simultaneously agricultural, environmental, and climate-related.
+
+---
+
+## How IBM Bob Was Used
+
+**IBM Bob** was used throughout the development of HazeCrop as an AI-assisted coding and development tool. Specifically, Bob helped the team:
+
+- **Build and structure** the Python/Streamlit application and project layout
+- **Develop and debug** the data-processing pipeline for NASA MODIS MAIAC AOD data
+- **Connect and integrate** the Google Earth Engine data workflow into the application
+- **Develop and refine** the four-agent AI architecture (Data Analyst → Pattern Analyst → Outlook Agent → Preparedness Agent)
+- **Debug** Python, Streamlit, and application-level errors throughout development
+- **Improve** the dashboard UI/UX and visual design system
+- **Organise and improve** project code structure and documentation, including this README
+
+IBM Bob acted as a development and coding assistant. The NASA satellite data, Earth Engine queries, and all scientific analysis are performed by the application itself using real MODIS data; Bob did not independently perform satellite analysis or generate the underlying environmental data.
+
+---
+
 ## How It Works
 
 ```
